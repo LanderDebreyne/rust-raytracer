@@ -5,8 +5,11 @@ Raytracer written in rust (WIP)
 
 Raytracer written in rust.
 Renders arbitrary width, height scenes.
-Renders ppm format image.
-Camera defined using 
+Renders ppm format image.  
+
+Sample image of diffuse sphere and reflective triangle and sphere on white plane, left green plane and white environment.  
+Render using 100 samples per pixel, max_depth of 50 in 1920*1080.
+![ diffuse sphere and reflective triangle and sphere on white plane, left green plane and white environment](https://github.com/LanderDebreyne/rust-raytracer/blob/main/render.png?raw=true)
 
 Jittered sampling.  
 No lights, no shadowrays yet.  
