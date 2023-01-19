@@ -7,7 +7,7 @@ use super::{object::{Object, Hit}, object::Object::{SphereObj, PlaneObj, Triangl
 pub struct World {
     pub objects: Vec<Box<Object>>,
     pub camera: Box<Camera>,
-    pub lights: Vec<Box<Object>>,
+    pub lights: Vec<(Vector3<f64>, Box<Object>)>,
 }
 
 impl World {
@@ -25,8 +25,8 @@ impl World {
         self.objects.push(object);
     }
 
-    pub fn addlight(&mut self, light: Box<Object>) {
-        self.lights.push(light);
+    pub fn addlight(&mut self, ls: Vector3<f64>, light: Box<Object>) {
+        self.lights.push((ls, light));
     }
 
     pub fn build(&mut self) -> () {
@@ -51,7 +51,7 @@ impl World {
         self.add(Box::new(right));
         self.add(Box::new(ceil));
         self.add(Box::new(floor));
-        self.addlight(Box::new(light));
+        self.addlight(Vector3::new(5.0, 5.0, 5.0) ,Box::new(light));
     }
 
 }
@@ -73,12 +73,13 @@ impl Hit for World {
         }
 
         for light in &self.lights {
-            if light.hit(r, t_min, closest_so_far, &mut temp_hit_record) {
+            if light.1.hit(r, t_min, closest_so_far, &mut temp_hit_record) {
                 hit_anything = true;
                 let t = temp_hit_record.clone();
                 closest_so_far = t.t;
                 *hit_record = temp_hit_record;
                 hit_record.is_light = true;
+                hit_record.light = light.0;
             }
         }
 

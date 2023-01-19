@@ -11,7 +11,8 @@ pub struct HitRecord {
     pub depth: i32,
     pub t: f64,
     pub front_face: bool,
-    pub is_light: bool
+    pub is_light: bool,
+    pub light: Vector3<f64>,
 }
 
 impl HitRecord {
@@ -23,7 +24,8 @@ impl HitRecord {
             front_face: false,
             depth: depth,
             material: MatLam(Lambertian::new(Vector3::new(0.5, 0.5, 0.5))),
-            is_light: false
+            is_light: false,
+            light: Vector3::new(5.0, 5.0, 5.0)
         }
     }
 
