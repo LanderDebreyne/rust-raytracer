@@ -15,7 +15,7 @@ impl Metal {
 
     pub fn scatter(&self, ray_in: &Ray, hit_record: &HitRecord, attenuation : &mut Vector3<f64>, ray_scattered: &mut Ray) -> bool {
         let refl = reflect(&ray_in.direction.normalize(), &hit_record.normal);
-        ray_scattered.direction = refl;
+        ray_scattered.direction = refl.normalize();
         ray_scattered.origin = hit_record.hit_point;
         attenuation.x = self.albedo.x;
         attenuation.y = self.albedo.y;

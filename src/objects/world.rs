@@ -1,19 +1,20 @@
 use nalgebra::{Vector3, Point3};
-
 use crate::{hitrecord::HitRecord, render::{camera::Camera, ray::Ray}};
 use crate::materials::{material::Material::{MatLam, MatMet}, lambertian::Lambertian, metal::Metal};
 
-use super::{object::{Object, Hit}, object::Object::{SphereObj, PlaneObj, TriangleObj}, sphere::Sphere, triangle::Triangle, plane::Plane};
+use super::{object::{Object, Hit}, object::Object::{SphereObj, PlaneObj, TriangleObj, RectObj}, sphere::Sphere, triangle::Triangle, plane::Plane, rectangle::Rectangle};
 
 pub struct World {
     pub objects: Vec<Box<Object>>,
     pub camera: Box<Camera>,
+    pub lights: Vec<Box<Object>>,
 }
 
 impl World {
     pub fn new(camera: Box<Camera>) -> World {
         let mut world = World {
             objects: Vec::new(),
+            lights: Vec::new(),
             camera: camera,
         };
         world.build();
@@ -24,28 +25,33 @@ impl World {
         self.objects.push(object);
     }
 
+    pub fn addlight(&mut self, light: Box<Object>) {
+        self.lights.push(light);
+    }
+
     pub fn build(&mut self) -> () {
         let material_sphere = MatLam(Lambertian::new(Vector3::new(0.7, 0.3, 0.3)));
         let material_sphere2 = MatMet(Metal::new(Vector3::new(0.8, 0.8, 0.8)));
         let sphere = SphereObj(Sphere::new(Point3::new(0.0, 0.4, 0.4), 0.4, material_sphere));
         let sphere2 = SphereObj(Sphere::new(Point3::new(-0.6, 0.6, 0.6), 0.4, material_sphere2));
-        let triangle = TriangleObj(Triangle::new(Point3::new(-0.9, 1.9, 0.6), Point3::new(0.9, 1.9, 0.6), Point3::new(0.0, 0.1, 0.6), material_sphere2));
+        let _triangle = TriangleObj(Triangle::new(Point3::new(-0.9, 1.9, 0.6), Point3::new(0.9, 1.9, 0.6), Point3::new(0.0, 0.1, 0.6), material_sphere2));
         let w = MatLam(Lambertian::new(Vector3::new(1.0, 1.0, 1.0)));
-        //let r = MatLam(Lambertian::new(Vector3::new(1.0, 0.0, 0.0)));
-        let g = MatLam(Lambertian::new(Vector3::new(0.0, 1.0, 0.0)));
-        //let left = PlaneObj(Plane::new(Point3::new(1.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0), r));
-        //let back = PlaneObj(Plane::new(Point3::new(0.0, 0.0, 1.0), Vector3::new(0.0, 0.0, -1.0), w));
-        let right = PlaneObj(Plane::new(Point3::new(-1.0, 0.0, 0.0), Vector3::new(-1.0, 0.0, 0.0), g));
-        //let ceil = PlaneObj(Plane::new(Point3::new(0.0, 1.0, 0.0), Vector3::new(0.0, -1.0, 0.0), w));
+        let r = MatLam(Lambertian::new(Vector3::new(1.0, 0.1, 0.1)));
+        let g = MatLam(Lambertian::new(Vector3::new(0.1, 1.0, 0.1)));
+        let left = PlaneObj(Plane::new(Point3::new(-1.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0), r));
+        let back = PlaneObj(Plane::new(Point3::new(0.0, 0.0, 1.0), Vector3::new(0.0, 0.0, -1.0), w));
+        let right = PlaneObj(Plane::new(Point3::new(1.0, 0.0, 0.0), Vector3::new(-1.0, 0.0, 0.0), g));
+        let ceil = PlaneObj(Plane::new(Point3::new(0.0, 2.0, 0.0), Vector3::new(0.0, -1.0, 0.0), w));
         let floor = PlaneObj(Plane::new(Point3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 1.0, 0.0), w));
+        let light = RectObj(Rectangle::new(Point3::new(-0.5, 1.99, -0.5), Vector3::new(1.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 1.0), w)); 
         self.add(Box::new(sphere));
         self.add(Box::new(sphere2));
-        self.add(Box::new(triangle));
-        //self.add(Box::new(back));
-        //self.add(Box::new(left));
+        self.add(Box::new(back));
+        self.add(Box::new(left));
         self.add(Box::new(right));
-        //self.add(Box::new(ceil));
+        self.add(Box::new(ceil));
         self.add(Box::new(floor));
+        self.addlight(Box::new(light));
     }
 
 }
@@ -63,6 +69,16 @@ impl Hit for World {
                 let t = temp_hit_record.clone();
                 closest_so_far = t.t;
                 *hit_record = temp_hit_record;
+            }
+        }
+
+        for light in &self.lights {
+            if light.hit(r, t_min, closest_so_far, &mut temp_hit_record) {
+                hit_anything = true;
+                let t = temp_hit_record.clone();
+                closest_so_far = t.t;
+                *hit_record = temp_hit_record;
+                hit_record.is_light = true;
             }
         }
 

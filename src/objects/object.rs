@@ -1,11 +1,12 @@
 use crate::{hitrecord::HitRecord, render::ray::Ray};
 
-use super::{sphere::Sphere, triangle::Triangle, plane::Plane};
+use super::{sphere::Sphere, triangle::Triangle, plane::Plane, rectangle::Rectangle};
 
 pub enum Object {
     SphereObj(Sphere),
     TriangleObj(Triangle),
     PlaneObj(Plane),
+    RectObj(Rectangle)
     //Mesh(Mesh),
 }
 
@@ -15,6 +16,7 @@ impl Hit for Object {
             Object::SphereObj(sphere) => sphere.hit(r, t_min, t_max, hit_record),
             Object::TriangleObj(triangle) => triangle.hit(r, t_min, t_max, hit_record),
             Object::PlaneObj(plane) => plane.hit(r, t_min, t_max, hit_record),
+            Object::RectObj(rect) => rect.hit(r, t_min, t_max, hit_record),
             //Object::Mesh(mesh) => mesh.hit(r, t_min, t_max, hit_record),
         }
     }

@@ -1,9 +1,11 @@
 use nalgebra::{Point3, Vector3};
 use rand::Rng;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
-use std::{io::Write, f64::INFINITY};
+use image::{ImageBuffer, RgbImage};
+use std::f64::INFINITY;
 use super::{scene::Scene, hitrecord::HitRecord, ray::Ray};
 use crate::{objects::{world::World, object::Hit}, render::hitrecord, materials::Scatter};
+
 
 pub struct PinholeCamera {
     pub eye: Point3<f64>,
@@ -45,22 +47,17 @@ impl PinholeCamera {
         println!("Pinhole camera rendering");
         // render   
         let mut pixels = vec![0; self.scene.width * self.scene.height * 3];
-        let mut file = std::fs::File::create("image.ppm").unwrap();
-        writeln!(file, "P3
-
-        {} {}", self.scene.width, self.scene.height).unwrap();
-        writeln!(file, "255").unwrap();
         let pixrows: Vec<(usize, &mut [u8])> = pixels.chunks_mut(self.scene.width * 3).enumerate().collect();
         println!("Rendering... ");
         let samples = self.scene.samples;
         pixrows.into_par_iter().for_each(|(i, row)| {
             let mut rng = rand::thread_rng();
-            for (j, pixel) in row.chunks_mut(3).enumerate() {
+            row.chunks_mut(3).enumerate().into_iter().for_each(|(j, pixel)| {
                 let mut r = 0.0;
                 let mut g = 0.0;
                 let mut b = 0.0;
-                // jittered sampling
-                for sample in 0..samples {
+                (0..samples).into_iter().for_each(|sample| {
+                    // jittered sampling
                     let vs = ((sample / 8) as f64) / (samples as f64).sqrt();
                     let us = ((sample % 8) as f64) / (samples as f64).sqrt();
                     let ss = 1.0 / (sample as f64).sqrt();
@@ -72,12 +69,12 @@ impl PinholeCamera {
                     r = r + (pixel_color.x / (samples as f64));
                     g = g + (pixel_color.y / (samples as f64));
                     b = b + (pixel_color.z / (samples as f64));
-                }
+                });
                 let scale = 1.0;
                 pixel[0] = ((scale*r).sqrt().clamp(0.0, 0.999)*256.0) as u8;
                 pixel[1] = ((scale*g).sqrt().clamp(0.0, 0.999)*256.0) as u8;
                 pixel[2] = ((scale*b).sqrt().clamp(0.0, 0.999)*256.0) as u8;
-            }
+            });
         });
         println!("Done!");
 
@@ -85,14 +82,19 @@ impl PinholeCamera {
         println!("Reversing image... ");
         pixels.reverse();
         println!("Done!");
-
-        // write to file
+        // saving image
         println!("Writing image to file... ");
-        for pixel in pixels.chunks(3) {
-            writeln!(file, "{} {} {}", pixel[2], pixel[1], pixel[0]).unwrap();
-        }
+        // Construct a new RGB ImageBuffer with the specified width and height.
+        let mut img: RgbImage = ImageBuffer::new(self.scene.width as u32, self.scene.height as u32);
+        img.enumerate_pixels_mut().for_each(|(x, y, pixel)| {
+            let i = (y * (self.scene.width as u32) + x) as usize;
+            pixel[2] = pixels[i * 3];
+            pixel[1] = pixels[i * 3 + 1];
+            pixel[0] = pixels[i * 3 + 2];
+        });
+        img.save("image.png").unwrap();
         println!("Done!");
-        }
+    }
 
     pub fn ray(&self, u: f64, v: f64) -> Ray {
         let horizontal = self.u * self.scene.width as f64 * self.zoom;
@@ -111,13 +113,16 @@ impl PinholeCamera {
         }
         let hit = world.hit(r, 0.001, INFINITY, hit_record);
         if hit {
+            if hit_record.is_light {
+                return Vector3::new(1.0, 1.0, 1.0);
+            }
             let mut scatter = Ray::new(hit_record.hit_point, hit_record.normal); // dummy
             let mut attenuation = Vector3::new(0.0, 0.0, 0.0);
             if hit_record.material.scatter(r, hit_record, &mut attenuation, &mut scatter) {
-                return attenuation.scale(0.5).component_mul(&self.ray_color(&scatter, world, hit_record));
+                return attenuation.normalize().scale(0.5).component_mul(&self.ray_color(&scatter, world, hit_record));
             }
             return Vector3::new(0.0, 0.0, 0.0);
         }
-        Vector3::new(1.0, 1.0, 1.0)
+        Vector3::new(0.0, 0.0, 0.0)
     }
 }

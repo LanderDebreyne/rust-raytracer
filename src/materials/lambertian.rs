@@ -15,7 +15,7 @@ impl Lambertian {
     }
 
     pub fn scatter(&self, _ray_in: &Ray, hit_record: &HitRecord, attenuation: &mut Vector3<f64>, ray_scattered: &mut Ray) -> bool {
-        let scatter_direction = hit_record.normal + random_unit_vector();
+        let scatter_direction = (hit_record.normal + random_unit_vector()).normalize();
         if near_zero(&scatter_direction) {
             ray_scattered.direction = hit_record.normal;
         } else {
