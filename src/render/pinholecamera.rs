@@ -119,7 +119,7 @@ impl PinholeCamera {
             let mut scatter = Ray::new(hit_record.hit_point, hit_record.normal); // dummy
             let mut attenuation = Vector3::new(0.0, 0.0, 0.0);
             if hit_record.material.scatter(r, hit_record, &mut attenuation, &mut scatter) {
-                return attenuation.normalize().scale(0.5).component_mul(&self.ray_color(&scatter, world, hit_record));
+                return attenuation.normalize().scale(0.75).component_mul(&self.ray_color(&scatter, world, hit_record));
             }
         }
         Vector3::new(0.0, 0.0, 0.0)

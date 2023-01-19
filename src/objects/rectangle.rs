@@ -32,8 +32,8 @@ impl Rectangle {
             return false;
         }
         let hit_point = r.at(t);
-        let x = (hit_point - self.p).dot(&self.x);
-        let y = (hit_point - self.p).dot(&self.y);
+        let x = (hit_point - self.p).dot(&self.x.normalize());
+        let y = (hit_point - self.p).dot(&self.y.normalize());
         if x < 0.0 || x > self.x.norm() || y < 0.0 || y > self.y.norm() {
             return false;
         }

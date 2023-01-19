@@ -8,8 +8,9 @@ Added area lights.
 Rendering loop now writes to png (in parallel). (using image library, can output to other encoders).  
 
 Sample image of diffuse and reflective sphere in a cornell box.  
-Rendered using 1000 samples per pixel path tracing, max_depth of 10 in 800*800px.    
+Rendered using 1000 samples per pixel path tracing, max_depth of 50 in 800*800px.    
 ![diffuse and reflective sphere in a cornell box](https://github.com/LanderDebreyne/rust-raytracer/blob/main/19_1_23.png?raw=true)
+![diffuse and reflective sphere in a cornell box](https://github.com/LanderDebreyne/rust-raytracer/blob/main/19_1_23_2.png?raw=true)
 
 # 18/01/2023
 

@@ -36,6 +36,7 @@ impl World {
         let sphere2 = SphereObj(Sphere::new(Point3::new(-0.6, 0.6, 0.6), 0.4, material_sphere2));
         let _triangle = TriangleObj(Triangle::new(Point3::new(-0.9, 1.9, 0.6), Point3::new(0.9, 1.9, 0.6), Point3::new(0.0, 0.1, 0.6), material_sphere2));
         let w = MatLam(Lambertian::new(Vector3::new(1.0, 1.0, 1.0)));
+        let rw = MatLam(Lambertian::new(Vector3::new(1.0, 0.9, 0.9)));
         let r = MatLam(Lambertian::new(Vector3::new(1.0, 0.1, 0.1)));
         let g = MatLam(Lambertian::new(Vector3::new(0.1, 1.0, 0.1)));
         let left = PlaneObj(Plane::new(Point3::new(-1.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0), r));
@@ -43,7 +44,7 @@ impl World {
         let right = PlaneObj(Plane::new(Point3::new(1.0, 0.0, 0.0), Vector3::new(-1.0, 0.0, 0.0), g));
         let ceil = PlaneObj(Plane::new(Point3::new(0.0, 2.0, 0.0), Vector3::new(0.0, -1.0, 0.0), w));
         let floor = PlaneObj(Plane::new(Point3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 1.0, 0.0), w));
-        let light = RectObj(Rectangle::new(Point3::new(-0.5, 1.99, -0.5), Vector3::new(1.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 1.0), w)); 
+        let light = RectObj(Rectangle::new(Point3::new(-0.25, 1.99, 0.0), Vector3::new(0.5, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.5), rw)); 
         self.add(Box::new(sphere));
         self.add(Box::new(sphere2));
         self.add(Box::new(back));
@@ -51,7 +52,7 @@ impl World {
         self.add(Box::new(right));
         self.add(Box::new(ceil));
         self.add(Box::new(floor));
-        self.addlight(Vector3::new(5.0, 5.0, 5.0) ,Box::new(light));
+        self.addlight(Vector3::new(50.0, 40.0, 20.0) ,Box::new(light));
     }
 
 }
