@@ -59,4 +59,49 @@ impl Triangle {
 
         true
     }
+
+    pub fn light_hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> bool {
+        let e1 = self.p2 - self.p1;
+        let e2 = self.p3 - self.p1;
+        let p = ray.direction.cross(&e2);
+        let det = e1.dot(&p);
+
+        // if determinant is near zero, ray lies in plane of triangle
+        if det > -::std::f64::EPSILON && det < ::std::f64::EPSILON {
+            return false
+        }
+
+        let inv_det = 1.0 / det;
+        let s = ray.origin - self.p1;
+        let beta = inv_det * s.dot(&p);
+        if beta < 0.0 || beta > 1.0 { return false }
+
+        let q = s.cross(&e1);
+        let gamma = inv_det * ray.direction.dot(&q);
+        if gamma < 0.0 || beta + gamma > 1.0 { return false }
+
+        let t = inv_det * e2.dot(&q);
+
+        if t < t_min || t > t_max {
+            return false
+        }
+
+        true
+    }
+
+    pub fn rand_pos(&self) -> Point3<f64> {
+        let r1 = rand::random::<f64>();
+        let r2 = rand::random::<f64>();
+        let r1_sqrt = r1.sqrt();
+        (self.p1.coords.scale(1.0 - r1_sqrt) + self.p2.coords.scale((1.0 - r2) * r1_sqrt) + self.p3.coords.scale(r2 * r1_sqrt)).into()
+    }
+
+    pub fn area(&self) -> f64 {
+        0.5 * (self.p2 - self.p1).cross(&(self.p3 - self.p1)).norm()
+    }
+
+    pub fn normalp(&self, _p: &Point3<f64>) -> Vector3<f64> {
+        (self.p2 - self.p1).cross(&(self.p3 - self.p1)).normalize()
+    }
+
 }

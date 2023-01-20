@@ -23,11 +23,15 @@ impl Rectangle {
 
     pub fn hit(&self, r: &Ray, t_min: f64, t_max: f64, hit_record: &mut HitRecord) -> bool {
         let normal = self.normal();
-        let denom = r.direction.dot(&normal);
-        if denom.abs() < 1e-6 {
+        let det = r.direction.dot(&normal);
+        if det > -1e-6 {
             return false;
         }
-        let t = (self.p - r.origin).dot(&normal) / denom;
+        let det2 = (self.p - r.origin).dot(&normal);
+        if det2 > -1e-6 {
+            return false;
+        }
+        let t = det2 / det;
         if t < t_min || t > t_max {
             return false;
         }
@@ -39,9 +43,44 @@ impl Rectangle {
         }
         hit_record.t = t;
         hit_record.hit_point = hit_point;
-        hit_record.normal = normal;
+        hit_record.normal = normal;                
         hit_record.set_face_normal(&r, &normal);
         hit_record.material = self.material.clone();
+        true
+    }
+
+    pub fn light_hit(&self, r: &Ray, t_min: f64, t_max: f64) -> bool {
+        let normal = self.normal();
+        let det = r.direction.dot(&normal);
+        if det > -1e-6 {
+            return false;
+        }
+        let det2 = (self.p - r.origin).dot(&normal);
+        if det2 > -1e-6 {
+            return false;
+        }
+        let t = det2 / det;
+        if t < t_min || t > t_max {
+            return false;
+        }
+        let hit_point = r.at(t);
+        let x = (hit_point - self.p).dot(&self.x.normalize());
+        let y = (hit_point - self.p).dot(&self.y.normalize());
+        if x < 0.0 || x > self.x.norm() || y < 0.0 || y > self.y.norm() {
+            return false;
+        }
         return true;
+    }
+
+    pub fn rand_pos(&self) -> Point3<f64> {
+        self.p + self.x * rand::random::<f64>() + self.y * rand::random::<f64>()
+    }
+
+    pub fn area(&self) -> f64 {
+        self.x.norm() * self.y.norm()
+    }
+
+    pub fn normalp(&self, _p: &Point3<f64>) -> Vector3<f64> {
+        self.x.cross(&self.y).normalize()
     }
 }

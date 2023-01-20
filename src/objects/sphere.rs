@@ -1,4 +1,4 @@
-use nalgebra::Point3;
+use nalgebra::{Point3, Vector3};
 
 use crate::materials::material::Material;
 use crate::hitrecord::HitRecord;
@@ -44,6 +44,48 @@ impl Sphere {
         hit_record.set_face_normal(&r, &normal);
         hit_record.material = self.material.clone();
     
-        return true;
+        true
     }
+
+    pub fn light_hit(&self, r: &Ray, t_min: f64, t_max: f64) -> bool {
+        let oc = r.origin - self.center;
+        let a = r.direction.dot(&r.direction);
+        let half_b = oc.dot(&r.direction);
+        let c = oc.dot(&oc) - self.radius * self.radius;
+    
+        let discriminant = half_b*half_b - a*c;
+        if discriminant < 0.0 {
+            return false;
+        }
+        let sqrtd = discriminant.sqrt();
+    
+        // Find the nearest root that lies in the acceptable range.
+        let mut root = (-half_b - sqrtd) / a;
+        if root < t_min || t_max < root {
+            root = (-half_b + sqrtd) / a;
+            if root < t_min || t_max < root {
+                return false;
+            }
+        }
+    
+        true
+    }
+
+    pub fn rand_pos(&self) -> Point3<f64> {
+        let theta = rand::random::<f64>() * 2.0 * std::f64::consts::PI;
+        let phi = rand::random::<f64>() * 2.0 * std::f64::consts::PI;
+        let x = self.radius * theta.cos() * phi.cos();
+        let y = self.radius * theta.sin() * phi.cos();
+        let z = self.radius * phi.sin();
+        self.center + Vector3::new(x, y, z)
+    }
+
+    pub fn area (&self) -> f64 {
+        4.0 * std::f64::consts::PI * self.radius * self.radius
+    }
+
+    pub fn normalp(&self, p: &Point3<f64>) -> Vector3<f64> {
+        (p - self.center) / self.radius
+    }
+
 }

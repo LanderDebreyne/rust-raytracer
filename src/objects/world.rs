@@ -44,7 +44,7 @@ impl World {
         let right = PlaneObj(Plane::new(Point3::new(1.0, 0.0, 0.0), Vector3::new(-1.0, 0.0, 0.0), g));
         let ceil = PlaneObj(Plane::new(Point3::new(0.0, 2.0, 0.0), Vector3::new(0.0, -1.0, 0.0), w));
         let floor = PlaneObj(Plane::new(Point3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 1.0, 0.0), w));
-        let light = RectObj(Rectangle::new(Point3::new(-0.25, 1.99, 0.0), Vector3::new(0.5, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.5), rw)); 
+        let light = RectObj(Rectangle::new(Point3::new(-0.25, 1.9, 0.0), Vector3::new(0.5, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.5), rw));
         self.add(Box::new(sphere));
         self.add(Box::new(sphere2));
         self.add(Box::new(back));
@@ -52,7 +52,7 @@ impl World {
         self.add(Box::new(right));
         self.add(Box::new(ceil));
         self.add(Box::new(floor));
-        self.addlight(Vector3::new(50.0, 40.0, 20.0) ,Box::new(light));
+        self.addlight(Vector3::new(0.01, 0.008, 0.004) ,Box::new(light));
     }
 
 }
@@ -87,5 +87,20 @@ impl Hit for World {
         hit_record.depth = depth - 1;
 
         hit_anything
+    }
+
+    fn light_hit(&self, r: &Ray, t_min: f64, t_max: f64) -> bool {
+        for object in &self.objects {
+            if object.light_hit(r, t_min, t_max) {
+                return true;
+            }
+        }
+
+        for light in &self.lights {
+            if light.1.light_hit(r, t_min, t_max) {
+                return true;
+            }
+        }
+        false
     }
 }

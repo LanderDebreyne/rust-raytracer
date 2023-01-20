@@ -13,8 +13,8 @@ fn main() {
     let aspect_ratio = 1.0;
     let width = 800;
     let height = (width as f64 / aspect_ratio) as usize;
-    let samples = 1000;    
-    let max_depth = 50;
+    let samples = 256;    
+    let max_depth = 10;
 
     let scene = Scene::new(width, height, samples, max_depth);
     
