@@ -2,7 +2,7 @@ use nalgebra::{Point3, Vector3};
 use rand::Rng;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 use image::{ImageBuffer, RgbImage};
-use std::f64::INFINITY;
+use std::f64::{INFINITY, consts::PI};
 use super::{scene::Scene, hitrecord::HitRecord, ray::Ray};
 use crate::{objects::{world::World, object::{Hit, Pos}}, render::hitrecord, materials::material::Scatter};
 
@@ -114,32 +114,32 @@ impl PinholeCamera {
         let hit = world.hit(r, 0.001, INFINITY, hit_record);
         if hit {
             if hit_record.is_light {
-                return hit_record.light.normalize();
+                return hit_record.light;
             }
             let mut dir = Vector3::new(0.0, 0.0, 0.0);
             // direct illumination
             // check if lights are visible
             for light in &world.lights {
-                let light_area = light.1.area();
                 let light_pos = light.1.rand_pos();
                 let light_dir = light_pos - hit_record.hit_point;
                 let light_intensity = light_dir.dot(&light.1.normalp(&light_pos));
                 if light_intensity < 1e-6 {
                     let light_distance = light_dir.norm();
+                    // this is only an approximation, TODO: make it more accurate
+                    let light_area_est = light.1.area() / (light_distance * light_distance * 2.0 * PI);
                     let light_dir = light_dir.normalize();
                     let light_ray = Ray::new(hit_record.hit_point, light_dir);
                     let light_hit = world.light_hit(&light_ray, 0.001, light_distance-0.001);
                     if !light_hit {
-                        dir += light.0 * light_intensity.abs() / light_area;
+                        dir += light.0 * light_intensity.abs() * light_area_est;
                     }
                 }
             }
             dir = dir.component_mul(&hit_record.material.albedo());
-            let mut attenuation = Vector3::new(0.0, 0.0, 0.0);
             // indirect illumination
             let mut scatter = Ray::new(hit_record.hit_point, hit_record.normal); // dummy
-            if hit_record.material.scatter(r, hit_record, &mut attenuation, &mut scatter) {
-                return dir + attenuation.normalize().scale(0.5).component_mul(&self.ray_color(&scatter, world, hit_record));
+            if hit_record.material.scatter(r, hit_record, &mut scatter) {
+                return dir + hit_record.material.albedo().normalize().scale(hit_record.material.reflectivity()).component_mul(&self.ray_color(&scatter, world, hit_record));
             }
         }
         Vector3::new(0.0, 0.0, 0.0)

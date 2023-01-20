@@ -1,5 +1,5 @@
 use nalgebra::{Vector3, Point3};
-use crate::{materials::lambertian::Lambertian, materials::{material::Material::{self, MatLam}}};
+use crate::{materials::diffuse::Diffuse, materials::{material::Material::{self, DiffMat}}};
 
 use super::ray::Ray;
 
@@ -23,7 +23,7 @@ impl HitRecord {
             t: 0.0,
             front_face: false,
             depth: depth,
-            material: MatLam(Lambertian::new(Vector3::new(0.5, 0.5, 0.5))),
+            material: DiffMat(Diffuse::new(Vector3::new(0.5, 0.5, 0.5), 0.79)),
             is_light: false,
             light: Vector3::new(5.0, 5.0, 5.0)
         }

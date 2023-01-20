@@ -1,6 +1,6 @@
 use nalgebra::{Vector3, Point3};
 use crate::{hitrecord::HitRecord, render::{camera::Camera, ray::Ray}};
-use crate::materials::{material::Material::{MatLam, MatMet}, lambertian::Lambertian, metal::Metal};
+use crate::materials::{material::Material::{DiffMat, SpecMat}, diffuse::Diffuse, specular::Specular};
 
 use super::{object::{Object, Hit}, object::Object::{SphereObj, PlaneObj, TriangleObj, RectObj}, sphere::Sphere, triangle::Triangle, plane::Plane, rectangle::Rectangle};
 
@@ -30,15 +30,15 @@ impl World {
     }
 
     pub fn build(&mut self) -> () {
-        let material_sphere = MatLam(Lambertian::new(Vector3::new(0.7, 0.3, 0.3)));
-        let material_sphere2 = MatMet(Metal::new(Vector3::new(0.8, 0.8, 0.8)));
+        let material_sphere = DiffMat(Diffuse::new(Vector3::new(0.7, 0.3, 0.3), 0.5));
+        let material_sphere2 = SpecMat(Specular::new(0.9));
         let sphere = SphereObj(Sphere::new(Point3::new(0.0, 0.4, 0.4), 0.4, material_sphere));
         let sphere2 = SphereObj(Sphere::new(Point3::new(-0.6, 0.6, 0.6), 0.4, material_sphere2));
         let _triangle = TriangleObj(Triangle::new(Point3::new(-0.9, 1.9, 0.6), Point3::new(0.9, 1.9, 0.6), Point3::new(0.0, 0.1, 0.6), material_sphere2));
-        let w = MatLam(Lambertian::new(Vector3::new(1.0, 1.0, 1.0)));
-        let rw = MatLam(Lambertian::new(Vector3::new(1.0, 0.9, 0.9)));
-        let r = MatLam(Lambertian::new(Vector3::new(1.0, 0.1, 0.1)));
-        let g = MatLam(Lambertian::new(Vector3::new(0.1, 1.0, 0.1)));
+        let w = DiffMat(Diffuse::new(Vector3::new(1.0, 1.0, 1.0), 0.5));
+        let rw = DiffMat(Diffuse::new(Vector3::new(1.0, 0.9, 0.9), 0.5));
+        let r = DiffMat(Diffuse::new(Vector3::new(1.0, 0.1, 0.1), 0.5));
+        let g = DiffMat(Diffuse::new(Vector3::new(0.1, 1.0, 0.1), 0.5));
         let left = PlaneObj(Plane::new(Point3::new(-1.0, 0.0, 0.0), Vector3::new(1.0, 0.0, 0.0), r));
         let back = PlaneObj(Plane::new(Point3::new(0.0, 0.0, 1.0), Vector3::new(0.0, 0.0, -1.0), w));
         let right = PlaneObj(Plane::new(Point3::new(1.0, 0.0, 0.0), Vector3::new(-1.0, 0.0, 0.0), g));
@@ -52,7 +52,7 @@ impl World {
         self.add(Box::new(right));
         self.add(Box::new(ceil));
         self.add(Box::new(floor));
-        self.addlight(Vector3::new(0.01, 0.008, 0.004) ,Box::new(light));
+        self.addlight(Vector3::new(5.0, 3.0, 4.0) ,Box::new(light));
     }
 
 }

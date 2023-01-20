@@ -1,3 +1,3 @@
 pub mod material;
-pub mod metal;
-pub mod lambertian;
+pub mod specular;
+pub mod diffuse;

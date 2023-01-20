@@ -4,19 +4,19 @@ Raytracer written in rust (WIP)
 # 20/01/23
 
 Split rendering into direct and indirect illumination.  
-Direct illumination samples random position on light source and checks visibility.
+Direct illumination samples random position on light source and checks visibility.  
 
-Only light, rendered using 100 samples per pixel path tracing, max_depth of 1 in 800*800px.  
+Lights, direct and indirect illumination, rendered using 256 samples per pixel path tracing, max_depth of 10 in 800*800px.
+![diffuse and reflective sphere in a cornell box](https://github.com/LanderDebreyne/rust-raytracer/blob/main/20_1_23_combined.png?raw=true)
+
+Only light, rendered using 256 samples per pixel path tracing, max_depth of 1 in 800*800px.  
 ![diffuse and reflective sphere in a cornell box, only light rendered](https://github.com/LanderDebreyne/rust-raytracer/blob/main/20_1_23_light.png?raw=true)
 
-Only direct illumination, rendered using 100 samples per pixel path tracing, max_depth of 1 in 800*800px.
+Only direct illumination, rendered using 256 samples per pixel path tracing, max_depth of 1 in 800*800px.
 ![diffuse and reflective sphere in a cornell box, only direct illumination rendered](https://github.com/LanderDebreyne/rust-raytracer/blob/main/20_1_23_direct.png?raw=true)
 
-Only indirect illumination, rendered using 256 samples per pixel path tracing, max_depth of 50 in 800*800px.
+Only indirect illumination, rendered using 256 samples per pixel path tracing, max_depth of 10 in 800*800px.
 ![diffuse and reflective sphere in a cornell box, only indirect illumination rendered](https://github.com/LanderDebreyne/rust-raytracer/blob/main/20_1_23_indirect.png?raw=true)
-
-Lights, direct and indirect illumination, rendered using 256 samples per pixel path tracing, max_depth of 50 in 800*800px.
-![diffuse and reflective sphere in a cornell box](https://github.com/LanderDebreyne/rust-raytracer/blob/main/20_1_23_combined.png?raw=true)
 
 # 19/01/2023
 
