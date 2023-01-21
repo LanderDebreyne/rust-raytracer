@@ -2,7 +2,7 @@ use nalgebra::{Point3, Vector3};
 use rand::Rng;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 use image::{ImageBuffer, RgbImage};
-use std::f64::{INFINITY, consts::PI};
+use std::f64::INFINITY;
 use super::{scene::Scene, hitrecord::HitRecord, ray::Ray};
 use crate::{objects::{world::World, object::{Hit, Pos}}, render::hitrecord, materials::material::Scatter};
 
@@ -122,16 +122,14 @@ impl PinholeCamera {
             for light in &world.lights {
                 let light_pos = light.1.rand_pos();
                 let light_dir = light_pos - hit_record.hit_point;
-                let light_intensity = light_dir.dot(&light.1.normalp(&light_pos));
+                let light_intensity = light_dir.dot(&light.1.normalp(&light_pos)); // cosine of angle between light and normal
                 if light_intensity < 1e-6 {
                     let light_distance = light_dir.norm();
-                    // this is only an approximation, TODO: make it more accurate
-                    let light_area_est = light.1.area() / (light_distance * light_distance * 2.0 * PI);
                     let light_dir = light_dir.normalize();
                     let light_ray = Ray::new(hit_record.hit_point, light_dir);
                     let light_hit = world.light_hit(&light_ray, 0.001, light_distance-0.001);
                     if !light_hit {
-                        dir += light.0 * light_intensity.abs() * light_area_est;
+                        dir += light.0 * light_intensity.abs() * light.1.area() / (light_distance * light_distance);
                     }
                 }
             }
