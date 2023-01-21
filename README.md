@@ -4,8 +4,9 @@ Raytracer written in rust (WIP)
 # 21/01/23
 
 Correct mistake in direct illumination.
-Use Area of light / (light_distance * light_distance) instead of Area of light / (Area of Hemisphere with radius of light_distance).
-This results in a brighter image.  
+Use Area of light / (light_distance * light_distance) as per the area formulation of the rendering equation instead of Area of light / Area of Hemisphere which reduces to:   
+A_l / (r_l * r_l) instead of A_l / (r_l * r_l * 2 * PI).  
+This results in a brighter image with factor 2*PI.  
 
 Corrected render (256 samples/pixel, 10 depth)
 ![diffuse and reflective sphere in a cornell box](https://github.com/LanderDebreyne/rust-raytracer/blob/main/21_1_23.png?raw=true)
